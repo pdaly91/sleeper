@@ -1,0 +1,24 @@
+{
+  "name": "sleeper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aatbio-patrick/sleeper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/aatbio-patrick/sleeper/issues"
+  },
+  "homepage": "https://github.com/aatbio-patrick/sleeper#readme",
+  "dependencies": {
+    "@types/node": "^26.6.0"
+  }
+}

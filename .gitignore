@@ -1,0 +1,6 @@
+#nodejs required libraries
+node_modules
+#environment variables
+.env
+
+/data/*
