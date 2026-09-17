@@ -5,27 +5,20 @@
 import fs from 'fs';
 import { cwd } from 'process';
 import dotenv from 'dotenv';
-import { fetchLeageUsers, fetchLeague, fetchLeagueRosters, LeagueData, LeagueUser, RosterData } from "./sleeper_api/league";
-import { getPlayers, PlayerData } from "./sleeper_api/players";
-dotenv.config();
+import { fetchLeageUsers, fetchLeague, fetchLeagueRosters } from "./sleeper/league";
+import { getPlayers } from "./sleeper/players";
+import { TypeSleeperLeague } from './types/sleeper/league';
+import { TypeSleeperPlayer } from './types/sleeper/player';
+import { TypeFantasy } from './types';
 
-type RosterResult = {
-        username: string,
-        teamname: string,
-        user_id: string,
-        players: {
-            name: string,
-            id: string,
-            position: string,
-        }[]
-    }
+dotenv.config();
 
 const hasValidPosition = (fantasy_positions: string[]) => {
     const validPositions = ['WR', 'K', 'RB', 'QB', 'TE', 'DEF'];
     return fantasy_positions.some((pos) => validPositions.includes(pos));
 };
 
-const getAvailablePlayers = (players: PlayerData, takenPlayers: Record<string, boolean>) => {
+const getAvailablePlayers = (players: TypeSleeperPlayer.PlayerData, takenPlayers: Record<string, boolean>) => {
     const POSITION_CAPS: Record<string, number> = {
         QB: 18,
         RB: 35,
@@ -72,7 +65,12 @@ const getAvailablePlayers = (players: PlayerData, takenPlayers: Record<string, b
     return available;
 };
 
-const getTeamRoster = (leagueData: LeagueData, roster: RosterData, user: LeagueUser, playerMap: PlayerData) => {
+const getTeamRoster = (
+    leagueData: TypeSleeperLeague.LeagueData,
+    roster: TypeSleeperLeague.RosterData,
+    user: TypeSleeperLeague.LeagueUser,
+    playerMap: TypeSleeperPlayer.PlayerData
+) => {
     const { roster_positions } = leagueData;
     const { starters, players } = roster;
     const { display_name, metadata: { team_name } } = user;
@@ -119,7 +117,7 @@ const buildRosters = async () => {
         throw new Error('Missing Environment Variables!');
     }
 
-    const result: RosterResult[] = [];
+    const result: TypeFantasy.RosterResult[] = [];
     console.log('Fetching League Users...');
     const leagueUsers = await fetchLeageUsers(LEAGUE_ID);
     console.log('Fetching League Rosters...');
@@ -142,7 +140,7 @@ const buildRosters = async () => {
             getTeamRoster(leagueData, roster, user, playerMap);
         }
 
-        const entry: RosterResult = {
+        const entry: TypeFantasy.RosterResult = {
             username: display_name,
             teamname: team_name,
             user_id: user_id,
