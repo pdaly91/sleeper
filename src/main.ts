@@ -4,11 +4,21 @@
 
 import fs from 'fs';
 import { cwd } from 'process';
+import dotenv from 'dotenv';
 import { fetchLeageUsers, fetchLeague, fetchLeagueRosters, LeagueData, LeagueUser, RosterData } from "./sleeper_api/league";
 import { getPlayers, PlayerData } from "./sleeper_api/players";
+dotenv.config();
 
-const MY_USER_ID = '1129305024850493440';
-const LEAGUE_ID = '1389708312630558720';
+type RosterResult = {
+        username: string,
+        teamname: string,
+        user_id: string,
+        players: {
+            name: string,
+            id: string,
+            position: string,
+        }[]
+    }
 
 const hasValidPosition = (fantasy_positions: string[]) => {
     const validPositions = ['WR', 'K', 'RB', 'QB', 'TE', 'DEF'];
@@ -102,16 +112,13 @@ const getTeamRoster = (leagueData: LeagueData, roster: RosterData, user: LeagueU
 
 const buildRosters = async () => {
     const takenPlayers: Record<string, boolean> = {};
-    type RosterResult = {
-        username: string,
-        teamname: string,
-        user_id: string,
-        players: {
-            name: string,
-            id: string,
-            position: string,
-        }[]
+
+    const LEAGUE_ID = process.env.LEAGUE_ID;
+    const MY_USER_ID = process.env.PATRICK_USER_ID;
+    if (!LEAGUE_ID || !MY_USER_ID) {
+        throw new Error('Missing Environment Variables!');
     }
+
     const result: RosterResult[] = [];
     console.log('Fetching League Users...');
     const leagueUsers = await fetchLeageUsers(LEAGUE_ID);
