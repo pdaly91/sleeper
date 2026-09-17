@@ -4,8 +4,8 @@
 
 import fs from 'fs';
 import { cwd } from 'process';
-import { fetchLeageUsers, fetchLeague, fetchLeagueRosters, LeagueData, LeagueUser, RosterData } from "./src/league";
-import { getPlayers, PlayerData } from "./src/players";
+import { fetchLeageUsers, fetchLeague, fetchLeagueRosters, LeagueData, LeagueUser, RosterData } from "./sleeper_api/league";
+import { getPlayers, PlayerData } from "./sleeper_api/players";
 
 const MY_USER_ID = '1129305024850493440';
 const LEAGUE_ID = '1389708312630558720';
