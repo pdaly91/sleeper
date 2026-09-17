@@ -2,7 +2,7 @@
  * @fileoverview fetch league from sleeper API
  */
 
-type LeagueData = {
+export type LeagueData = {
     total_rosters: number,
     status: string,
     sport: string,
@@ -17,7 +17,7 @@ type LeagueData = {
     draft_id: string,
     avatar: string
 }
-type RosterData = {
+export type RosterData = {
     starters: string[],
     settings: {
         wins: number,
@@ -37,7 +37,7 @@ type RosterData = {
     owner_id: string,
     league_id: string
 }
-type LeagueUser = {
+export type LeagueUser = {
     user_id: string,
     username: string,
     display_name: string,

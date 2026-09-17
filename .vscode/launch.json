@@ -5,7 +5,7 @@
       "type": "node",
       "request": "launch",
       "name": "Run TS Script",
-      "runtimeExecutable": "tsx",
+      "runtimeExecutable": "/Users/patrickdaly/.nvm/versions/node/v24.21.0/bin/tsx",
       "program": "${file}",
       "cwd": "${workspaceFolder}",
       "env": {

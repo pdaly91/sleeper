@@ -18,7 +18,8 @@
     "url": "https://github.com/aatbio-patrick/sleeper/issues"
   },
   "homepage": "https://github.com/aatbio-patrick/sleeper#readme",
-  "dependencies": {
-    "@types/node": "^26.6.0"
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "typescript": "5.6"
   }
 }

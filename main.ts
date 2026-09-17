@@ -4,10 +4,10 @@
 
 import fs from 'fs';
 import { cwd } from 'process';
-import { fetchLeageUsers, fetchLeague, fetchLeagueRosters } from "./src/league";
+import { fetchLeageUsers, fetchLeague, fetchLeagueRosters, LeagueData, LeagueUser, RosterData } from "./src/league";
 import { getPlayers, PlayerData } from "./src/players";
 
-const USER_ID = '1129305024850493440';
+const MY_USER_ID = '1129305024850493440';
 const LEAGUE_ID = '1389708312630558720';
 
 const hasValidPosition = (fantasy_positions: string[]) => {
@@ -62,6 +62,44 @@ const getAvailablePlayers = (players: PlayerData, takenPlayers: Record<string, b
     return available;
 };
 
+const getTeamRoster = (leagueData: LeagueData, roster: RosterData, user: LeagueUser, playerMap: PlayerData) => {
+    const { roster_positions } = leagueData;
+    const { starters, players } = roster;
+    const { display_name, metadata: { team_name } } = user;
+
+    const result: {
+        user: string,
+        team: string,
+        starters: string[],
+        bench: string[]
+    } = {
+        user: display_name,
+        team: team_name,
+        starters: [],
+        bench: []
+    };
+
+    // compile starterrs
+    for (let i = 0; i < starters.length; i++) {
+        const position = roster_positions[i];
+        const player_id = starters[i];
+        const player = playerMap[player_id];
+        const entry = `${position} - ${player.first_name} ${player.last_name}`;
+        result.starters.push(entry);
+    }
+
+    // compile bench
+    for (const player_id of players) {
+        if (starters.includes(player_id)) { continue; }
+        const player = playerMap[player_id];
+        const position = player.fantasy_positions.join(',');
+        const entry = `BENCH - ${player.first_name} ${player.last_name} (${position})`;
+        result.bench.push(entry);
+    }
+
+    fs.writeFileSync(`${cwd()}/data/ROSTER_${display_name}.json`, JSON.stringify(result, null, 4));
+};
+
 const buildRosters = async () => {
     const takenPlayers: Record<string, boolean> = {};
     type RosterResult = {
@@ -79,8 +117,10 @@ const buildRosters = async () => {
     const leagueUsers = await fetchLeageUsers(LEAGUE_ID);
     console.log('Fetching League Rosters...');
     const rosters = await fetchLeagueRosters(LEAGUE_ID);
+    console.log('Fetching Leage Data...');
+    const leagueData = await fetchLeague(LEAGUE_ID);
     console.log('Fetching Players...');
-    const players = await getPlayers();
+    const playerMap = await getPlayers();
 
     console.log('Building Roster JSON');
     for (const user of leagueUsers) {
@@ -90,6 +130,11 @@ const buildRosters = async () => {
             console.log('Error finding user:', user_id);
             continue;
         }
+
+        if (roster.owner_id === MY_USER_ID) {
+            getTeamRoster(leagueData, roster, user, playerMap);
+        }
+
         const entry: RosterResult = {
             username: display_name,
             teamname: team_name,
@@ -97,7 +142,7 @@ const buildRosters = async () => {
             players: []
         };
         for (const player_id of roster.players) {
-            const player = players[player_id];
+            const player = playerMap[player_id];
             if (!player) {
                 console.log('Error finding player:', player_id);
                 break;
@@ -116,7 +161,7 @@ const buildRosters = async () => {
     fs.writeFileSync(`${cwd()}/data/league_rosters.json`, JSON.stringify(result, null, 4));
 
     console.log('Building list of available players...');
-    const available = getAvailablePlayers(players, takenPlayers);
+    const available = getAvailablePlayers(playerMap, takenPlayers);
     console.log(`Saving ${available.length} available players...`);
     fs.writeFileSync(`${cwd()}/data/available_players.json`, JSON.stringify(available, null, 4));
 };
